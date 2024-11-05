@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestão de Investimentos</title>
+  <link rel="stylesheet" type="text/css" href="css/investiment.css"/>
+</head>
+<body>
+<nav>
+
+  <header>
+    <h1>COBANK</h1>
+    <ul>
+      <li><a href="index.html">Logout</a></li>
+      <li><a href="investimento.html">Investimento</a></li>
+    </ul>
+  </header>
+ 
+</nav>
+<div class="container">
+  <h1>Gestão de Investimentos</h1>
+  <input type="text" id="investmentName" placeholder="Nome do Investimento" />
+  <input type="number" id="investmentValue" placeholder="Valor do Investimento" />
+  <textarea id="investmentDescription" placeholder="Descrição do Investimento"></textarea>
+  <button onclick="addInvestment()">Adicionar Investimento</button>
+
+  <div class="investment-list" id="investmentList"></div>
+</div>
+
+<script>
+  // Função para carregar os investimentos salvos no localStorage
+  function loadInvestments() {
+    const investments = JSON.parse(localStorage.getItem('investments')) || [];
+    const investmentList = document.getElementById('investmentList');
+    investmentList.innerHTML = '';
+    investments.forEach((investment, index) => {
+      const investmentItem = document.createElement('div');
+      investmentItem.classList.add('investment-item');
+      investmentItem.innerHTML = `
+        <div>
+          <strong>${investment.name}</strong><br>
+          <small>Valor: R$ ${investment.value}</small><br>
+          <small>${investment.description}</small>
+        </div>
+        <div>
+          <button class="edit" onclick="editInvestment(${index})">Editar</button>
+          <button onclick="deleteInvestment(${index})">Excluir</button>
+        </div>
+      `;
+      investmentList.appendChild(investmentItem);
+    });
+  }
+
+  // Função para adicionar um novo investimento
+  function addInvestment() {
+    const name = document.getElementById('investmentName').value;
+    const value = document.getElementById('investmentValue').value;
+    const description = document.getElementById('investmentDescription').value;
+
+    if (!name || !value || !description) {
+      alert('Por favor, preencha todos os campos.');
+      return;
+    }
+
+    const investments = JSON.parse(localStorage.getItem('investments')) || [];
+    investments.push({ name, value, description });
+    localStorage.setItem('investments', JSON.stringify(investments));
+    clearForm();
+    loadInvestments();
+  }
+
+  // Função para editar um investimento
+  function editInvestment(index) {
+    const investments = JSON.parse(localStorage.getItem('investments')) || [];
+    const investment = investments[index];
+
+    document.getElementById('investmentName').value = investment.name;
+    document.getElementById('investmentValue').value = investment.value;
+    document.getElementById('investmentDescription').value = investment.description;
+
+    // Alterar o comportamento do botão para "Salvar"
+    const addButton = document.querySelector('button');
+    addButton.textContent = 'Salvar Alterações';
+    addButton.onclick = function() {
+      saveInvestment(index);
+    };
+  }
+
+  // Função para salvar as alterações feitas em um investimento
+  function saveInvestment(index) {
+    const name = document.getElementById('investmentName').value;
+    const value = document.getElementById('investmentValue').value;
+    const description = document.getElementById('investmentDescription').value;
+
+    const investments = JSON.parse(localStorage.getItem('investments')) || [];
+    investments[index] = { name, value, description };
+    localStorage.setItem('investments', JSON.stringify(investments));
+    clearForm();
+    loadInvestments();
+  }
+
+  // Função para excluir um investimento
+  function deleteInvestment(index) {
+    const investments = JSON.parse(localStorage.getItem('investments')) || [];
+    investments.splice(index, 1);
+    localStorage.setItem('investments', JSON.stringify(investments));
+    loadInvestments();
+  }
+
+  // Função para limpar o formulário
+  function clearForm() {
+    document.getElementById('investmentName').value = '';
+    document.getElementById('investmentValue').value = '';
+    document.getElementById('investmentDescription').value = '';
+    const addButton = document.querySelector('button');
+    addButton.textContent = 'Adicionar Investimento';
+    addButton.onclick = addInvestment;
+  }
+
+  // Carregar os investimentos quando a página carregar
+  window.onload = loadInvestments;
+</script>
+
+</body>
+</html>
